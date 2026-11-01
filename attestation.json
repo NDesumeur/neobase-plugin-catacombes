@@ -1,9 +1,0 @@
-{
-  "pluginId": "neobase.catacombes",
-  "repo": "NDesumeur/neobase-plugin-catacombes",
-  "version": "2.0.0",
-  "sha256": "36cce780f321d4c2cad6240ed1c66dc466e985252844fba47d311a602083a60e",
-  "approvedAt": "2026-11-01T13:30:30.029Z",
-  "neobase": ">=4.1.0",
-  "signature": "BPu0Cu3nkOlfjh1PpUz2wlY+UCbGbJg7jUBj+MKncH86vJFWUanXOZw/96XlWpdAmCr/7bHMB/75mXCeGhYXCw=="
-}

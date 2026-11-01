@@ -1,9 +1,9 @@
 {
   "id": "neobase.catacombes",
   "name": "Catacombes",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "author": "NDesumeur",
-  "description": "Un jeu d'exploration façon Isaac : salles générées, ennemis et boss tirés du bestiaire, objets aux effets cumulables, synergies, déblocages, sauvegarde et statistiques.",
+  "description": "Un jeu d'exploration façon Isaac : 6 à 8 étages dans 12 décors qui changent à chaque partie, ennemis et boss tirés de 1050 créatures, près de 500 objets aux effets cumulables, synergies, manette, sauvegarde et statistiques.",
   "icon": "icon.png",
   "entry": "index.js",
   "view": "catacombes",

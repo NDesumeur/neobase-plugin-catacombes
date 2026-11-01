@@ -258,10 +258,20 @@ export default async function (ctx) {
   const ROLE = m => ['turret', 'flyer', 'orbit', 'tri', 'teleport', 'ghost'].includes(m) ? 'range' : ['guard', 'patrol'].includes(m) ? 'guard' : 'melee';
   const PATTERNS = [['melee', 'melee', 'melee', 'range'], ['range', 'range', 'melee', 'melee'], ['guard', 'range', 'melee', 'range'], ['melee', 'range', 'melee'], ['range', 'guard', 'guard'], ['melee', 'melee', 'guard']];
   const snapFree = (x, y) => { for (let r = 0; r < 7; r++) for (let k = 0; k < 8; k++) { const a = k * .785 + r, px = clamp(x + Math.cos(a) * r * TILE * .7, 28, RW - 28), py = clamp(y + Math.sin(a) * r * TILE * .7, 28, RH - 28); if (!solidAt(px, py, 14) && Math.hypot(px - G.p.x, py - G.p.y) > 120) return [px, py]; } return freeSpot(Math.random); };
+  // who lives on which floor: the elements of the decor, a handful of species picked once per floor (3 melee, 2 ranged, 1 guard), the same ones in every room
+  const THEME_EL = { 'La Crypte': ['ombre', 'esprit', 'poison'], 'La Fournaise': ['feu', 'roche', 'acier'], 'La Forêt maudite': ['plante', 'poison', 'vent'], 'Les Glaciers': ['glace', 'eau', 'vent'], "L'Abîme": ['ombre', 'esprit', 'foudre'], 'Le Cimetière': ['ombre', 'poison', 'esprit'],
+    'Les Marais': ['poison', 'eau', 'plante'], 'Le Désert des Pharaons': ['roche', 'feu', 'vent'], 'Le Temple rouge': ['feu', 'lumiere', 'esprit'], 'La Cité mécanique': ['acier', 'foudre', 'roche'], 'Le Palais de Cristal': ['glace', 'lumiere', 'esprit'], 'Les Cieux': ['lumiere', 'vent', 'foudre'] };
+  const floorRoster = (lo, hi, mini) => {
+    const key = G.floor + ':' + (mini ? 1 : 0); G.rost = G.rost || {}; if (G.rost[key]) return G.rost[key];
+    const el = THEME_EL[themeOf(G.floor).n] || [], R = CR.rng((G.seed ^ (G.floor * 7919) ^ (mini ? 55 : 0)) >>> 0);
+    let pool = tierPool(lo, hi).filter(c => el.includes(c.t) || el.includes(c.t2)); if (pool.length < 12) pool = tierPool(lo, hi);
+    const by = { melee: [], range: [], guard: [] }; pool.forEach(c => by[ROLE(behaviour(c).move)].push(c));
+    const take = (a, n) => { const o = [], b = a.slice(); while (o.length < n && b.length) o.push(b.splice(Math.floor(R() * b.length), 1)[0]); return o; };
+    const all = [...take(by.melee, mini ? 2 : 4), ...take(by.range, mini ? 2 : 3), ...take(by.guard, 1)]; return G.rost[key] = all.length ? all : take(pool, 5);
+  };
   const spawnGroup = (R, n, mini, from = G.entry ?? -1) => {
     const lo = Math.min(3, Math.max(0, Math.floor((G.floor - 1) * .9))), hi = Math.min(4, lo + 1 + (G.floor > 2 ? 1 : 0)), pool = tierPool(mini ? Math.min(4, lo + 1) : lo, mini ? Math.min(5, hi + 1) : hi);
-    const cnt = {}; pool.forEach(c => [c.t, c.t2].filter(Boolean).forEach(t => cnt[t] = (cnt[t] || 0) + 1));
-    const theme = pickR(R, Object.keys(cnt).filter(t => cnt[t] >= 5)), tp = pool.filter(c => c.t === theme || c.t2 === theme), pat = PATTERNS[Math.floor(R() * PATTERNS.length)], plan = pickR(R, tp).plan, used = new Set(), list = [];
+    const tp = floorRoster(lo, hi, mini), pat = PATTERNS[((G.rooms[G.cur]?.dist ?? 0) + (mini ? 3 : 0)) % PATTERNS.length], plan = pickR(R, tp).plan, used = new Set(), list = []; void pool;
     for (let i = 0; i < n; i++) {
       const role = pat[i % pat.length]; let c = tp.filter(c => ROLE(behaviour(c).move) === role && !used.has(c.id)); if (role === 'melee' && c.some(k => k.plan === plan)) c = c.filter(k => k.plan === plan);
       c = pickR(R, c.length ? c : tp); used.add(c.id); list.push({ c, role });
@@ -410,7 +420,14 @@ export default async function (ctx) {
     const kind = e.atk[e.ai_i++ % e.atk.length], P = 1 + (e.c.atq > 72 ? .5 : 0) + (e.mini ? .5 : 0);
     telegraph(e, kind, () => { ATTACKS[kind]?.(e, aimAng(e), P); e.cd = clamp(2.9 - e.c.mag * .012, 1.5, 3) + rnd(0, .7) - (e.mini ? .4 : 0); });
   };
-  const moveWithWalls = (o, dx, dy, rad, fly) => { if (fly || !solidAt(o.x + dx, o.y, rad)) o.x += dx; if (fly || !solidAt(o.x, o.y + dy, rad)) o.y += dy; o.x = clamp(o.x, rad, RW - rad); o.y = clamp(o.y, rad, RH - rad); };
+  const ejectFromWalls = (o, rad) => { for (let r = 3; r <= 70; r += 3) for (let k = 0; k < 12; k++) { const a = k * .5236, x = clamp(o.x + Math.cos(a) * r, rad, RW - rad), y = clamp(o.y + Math.sin(a) * r, rad, RH - rad); if (!solidAt(x, y, rad)) { o.x = x; o.y = y; return; } } o.x = RW / 2; o.y = RH / 2; };
+  const moveWithWalls = (o, dx, dy, rad, fly) => {
+    if (!fly && solidAt(o.x, o.y, rad)) ejectFromWalls(o, rad);
+    if (!fly && o.det > 0) { o.det--; [dx, dy] = [-dy * o.ds, dx * o.ds]; }   // a detour: walk sideways round the rock for a moment
+    const ox = o.x, oy = o.y;
+    if (fly || !solidAt(o.x + dx, o.y, rad)) o.x += dx; if (fly || !solidAt(o.x, o.y + dy, rad)) o.y += dy; o.x = clamp(o.x, rad, RW - rad); o.y = clamp(o.y, rad, RH - rad);
+    if (!fly && (dx || dy)) { if (Math.hypot(o.x - ox, o.y - oy) < Math.hypot(dx, dy) * .3) { if ((o.blk = (o.blk || 0) + 1) > 8) { o.blk = 0; o.det = 36; o.ds = Math.random() < .5 ? 1 : -1; } } else o.blk = 0; }
+  };
   const updateEnemy = (e, dt) => {
     const p = G.p;
     if (e.spawn > 0) { e.spawn -= dt; return; }
@@ -537,7 +554,7 @@ export default async function (ctx) {
     // shooting
     p.cd -= dt;
     let sx = (keys.ArrowRight ? 1 : 0) - (keys.ArrowLeft ? 1 : 0), sy = (keys.ArrowDown ? 1 : 0) - (keys.ArrowUp ? 1 : 0);
-    if (!sx && !sy && pd && (Math.abs(pd.sx) > .3 || Math.abs(pd.sy) > .3)) { sx = pd.sx; sy = pd.sy; }
+    if (!sx && !sy && pd && (Math.abs(pd.sx) > .3 || Math.abs(pd.sy) > .3)) { if (Math.abs(pd.sx) >= Math.abs(pd.sy)) { sx = Math.sign(pd.sx); sy = 0; } else { sx = 0; sy = Math.sign(pd.sy); } p.padAim = [sx, sy]; }
     if (!sx && !sy && pd && (pd.rt || pd.rb)) { sx = p.aim[0]; sy = p.aim[1]; if (dx || dy) { sx = dx; sy = dy; } }
     if (!sx && !sy && keys.AimX) { sx = keys.AimX; sy = keys.AimY; }   // used by the balance bot (exact aim)
     if (!sx && !sy && mouse.down) { sx = mouse.x - p.x; sy = mouse.y - p.y; }
@@ -610,7 +627,7 @@ export default async function (ctx) {
   };
   /* ----- drawing ----- */
   const whites = new Map();
-  const spr = (c, frame, white) => { if (!white) return CR.sprite(c, frame); const k = c.id + frame; let w = whites.get(k); if (!w) { const s = CR.sprite(c, frame); w = document.createElement('canvas'); w.width = w.height = s.width; const x = w.getContext('2d'); x.drawImage(s, 0, 0); x.globalCompositeOperation = 'source-in'; x.fillStyle = '#fff'; x.fillRect(0, 0, s.width, s.width); whites.set(k, w); } return w; };
+  const spr = (c, frame, white) => { if (!white) return CR.sprite(c, frame, 4); const k = c.id + frame; let w = whites.get(k); if (!w) { const s = CR.sprite(c, frame, 4); w = document.createElement('canvas'); w.width = w.height = s.width; const x = w.getContext('2d'); x.drawImage(s, 0, 0); x.globalCompositeOperation = 'source-in'; x.fillStyle = '#fff'; x.fillRect(0, 0, s.width, s.width); whites.set(k, w); } return w; };
   const drawSprite = (c, x, y, sc, frame, white, flip) => { const s = spr(c, frame, white); g.save(); g.translate(Math.round(WALL + x), Math.round(HUD + WALL + y)); if (flip) g.scale(-1, 1); g.imageSmoothingEnabled = true; g.imageSmoothingQuality = 'high'; g.drawImage(s, -20 * sc, -20 * sc - 3, 40 * sc, 40 * sc); g.imageSmoothingEnabled = false; g.restore(); };
   const heartIcon = (x, y, fill) => { g.fillStyle = fill ? '#ff4f6d' : '#3a1730'; for (const [px, py, w, h] of [[1, 0, 2, 1], [4, 0, 2, 1], [0, 1, 7, 2], [1, 3, 5, 1], [2, 4, 3, 1], [3, 5, 1, 1]]) g.fillRect(x + px * 2, y + py * 2, w * 2, h * 2); if (fill) { g.fillStyle = '#ffb3c0'; g.fillRect(x + 2, y + 2, 2, 2); } };
   const drawItemIcon = (it, x, y, size) => { g.imageSmoothingEnabled = false; g.drawImage(itemIcon(it), Math.round(x), Math.round(y), size, size); };
@@ -667,7 +684,7 @@ export default async function (ctx) {
       if (e.freeze > 0) { g.fillStyle = 'rgba(159,232,255,.3)'; g.fillRect(ox + e.x - e.r, oy + e.y - e.r, e.r * 2, e.r * 2); } if (e.burn > 0) { g.fillStyle = '#ff8a5c'; g.fillRect(ox + e.x - 2, oy + e.y - e.r - 6 - (G.t * 20 % 6), 3, 3); } if (e.poison > 0) { g.fillStyle = '#c070ff'; g.fillRect(ox + e.x + 4, oy + e.y - e.r - 4 - (G.t * 15 % 6), 3, 3); }
       if (e.hp < e.max && !e.boss) { g.fillStyle = '#000'; g.fillRect(ox + e.x - 11, oy + e.y - e.r - 8, 22, 4); g.fillStyle = e.tr ? TRAITS[e.tr][1] : '#ff4f6d'; g.fillRect(ox + e.x - 10, oy + e.y - e.r - 7, 20 * Math.max(0, e.hp / e.max), 2); }
       if (e.mini) { g.fillStyle = '#ff9a3c'; g.font = 'bold 9px monospace'; g.fillText('ÉLITE', ox + e.x - 14, oy + e.y - e.r - 12); } } });
-    items.push({ y: p.y, f: () => { if (p.inv > 0 && Math.floor(p.inv * 14) & 1) g.globalAlpha = .35; g.fillStyle = 'rgba(0,0,0,.35)'; g.fillRect(ox + p.x - 9, oy + p.y + 10, 18, 5); drawSprite(CBYID[G.hero], p.x, p.y, 1, fr, false, p.face < 0); g.globalAlpha = 1; if (p.shield) { g.strokeStyle = '#9fe8ff'; g.lineWidth = 2; g.strokeRect(ox + p.x - 13, oy + p.y - 15, 26, 28); } if (p.slow > 0) { g.fillStyle = '#9fe8ff'; g.fillRect(ox + p.x - 8, oy + p.y - 20, 16, 2); } } });
+    items.push({ y: p.y, f: () => { if (p.inv > 0 && Math.floor(p.inv * 14) & 1) g.globalAlpha = .35; g.fillStyle = 'rgba(0,0,0,.35)'; g.fillRect(ox + p.x - 9, oy + p.y + 10, 18, 5); drawSprite(CBYID[G.hero], p.x, p.y, 1, fr, false, p.face < 0); g.globalAlpha = 1; if (p.shield) { g.strokeStyle = '#9fe8ff'; g.lineWidth = 2; g.strokeRect(ox + p.x - 13, oy + p.y - 15, 26, 28); } if (p.slow > 0) { g.fillStyle = '#9fe8ff'; g.fillRect(ox + p.x - 8, oy + p.y - 20, 16, 2); } if (padOn && p.padAim) { const [ax, ay] = p.padAim, cx = ox + p.x + ax * 24, cy = oy + p.y + ay * 24; g.fillStyle = 'rgba(255,255,255,.85)'; for (let k = 0; k < 3; k++) { const w = 3 - k; g.fillRect(Math.round(cx + ax * k * 3 - (ay ? w : 1)), Math.round(cy + ay * k * 3 - (ax ? w : 1)), ay ? w * 2 : 2, ax ? w * 2 : 2); } } } });
     items.sort((a, b) => a.y - b.y).forEach(i => i.f());
     for (let i = 0; i < p.orbit; i++) { const a = p.orbAng + i * 6.283 / p.orbit; g.fillStyle = '#9fe8ff'; g.fillRect(ox + p.x + Math.cos(a) * 30 - 4, oy + p.y + Math.sin(a) * 30 - 4, 8, 8); g.fillStyle = '#fff'; g.fillRect(ox + p.x + Math.cos(a) * 30 - 2, oy + p.y + Math.sin(a) * 30 - 2, 3, 3); }
     for (const b of G.b) { g.fillStyle = b.col; g.fillRect(ox + b.x - b.r, oy + b.y - b.r, b.r * 2, b.r * 2); g.fillStyle = '#fff'; g.fillRect(ox + b.x - 1, oy + b.y - 1, 2, 2); }

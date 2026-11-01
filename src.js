@@ -36,7 +36,7 @@ const CSS = `
 .ct-it i{flex:none;width:30px;height:30px;display:grid;place-items:center;font:14px var(--title,monospace);color:#10061c;font-style:normal}
 .ct-it img{flex:none;width:36px;height:36px;image-rendering:pixelated;background:#0b0520}
 .ct-it.lock{opacity:.5}
-.ct-help{flex:none;font-size:12px;color:var(--cb-sub,#9a88c4);text-align:center;max-width:980px;line-height:1.4;padding:0 8px 4px}
+.ct-help{position:absolute;left:0;right:0;bottom:0;font-size:11px;color:#cfc4ee;text-align:center;line-height:1.3;padding:3px 8px;background:#0b0520cc;pointer-events:none}
 `;
 /* ---------- helpers ---------- */
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v)), rnd = (a, b) => a + Math.random() * (b - a), ri = (a, b) => a + Math.floor(Math.random() * (b - a + 1)), dist = (a, b) => Math.hypot(a.x - b.x, a.y - b.y);
@@ -220,7 +220,7 @@ export default async function (ctx) {
   const stage = CRUI.el('div', 'ct-stage'), sideL = CRUI.el('div', 'ct-side'), sideR = CRUI.el('div', 'ct-side'), inL = CRUI.el('div', 'ct-sidein'), inR = CRUI.el('div', 'ct-sidein'); sideL.append(inL); sideR.append(inR);
   const wrap = CRUI.el('div', 'ct-wrap'), cv = document.createElement('canvas'); cv.width = CW; cv.height = CH; wrap.append(cv); stage.append(sideL, wrap, sideR); root.append(stage);
   const g = cv.getContext('2d'); g.imageSmoothingEnabled = false;
-  const help = CRUI.el('div', 'ct-help'); root.append(help);
+  const help = CRUI.el('div', 'ct-help'); wrap.append(help);
   const setHelp = () => { help.textContent = 'Déplacement : Z Q S D · Tirs : flèches ou clic · Maj : esquive · Espace : objet actif · Échap : pause · M : son' + (padOn ? ' · Manette : sticks (déplacement / tirs), A objet, X ou B esquive, Start pause' : ' · Manette compatible'); };
   const fit = () => { const aw = stage.clientWidth, ah = stage.clientHeight, ratio = CW / CH, sides = aw >= 900; stage.classList.toggle('nosides', !sides); const maxW = sides ? aw - 440 : aw; const w = Math.max(200, Math.floor(Math.min(maxW, ah * ratio, CW * 3))); wrap.style.width = w + 'px'; wrap.style.height = Math.round(w / ratio) + 'px'; };
   new ResizeObserver(fit).observe(stage); window.addEventListener('resize', fit); setTimeout(fit, 0);
@@ -423,10 +423,14 @@ export default async function (ctx) {
   const ejectFromWalls = (o, rad) => { for (let r = 3; r <= 70; r += 3) for (let k = 0; k < 12; k++) { const a = k * .5236, x = clamp(o.x + Math.cos(a) * r, rad, RW - rad), y = clamp(o.y + Math.sin(a) * r, rad, RH - rad); if (!solidAt(x, y, rad)) { o.x = x; o.y = y; return; } } o.x = RW / 2; o.y = RH / 2; };
   const moveWithWalls = (o, dx, dy, rad, fly) => {
     if (!fly && solidAt(o.x, o.y, rad)) ejectFromWalls(o, rad);
-    if (!fly && o.det > 0) { o.det--; [dx, dy] = [-dy * o.ds, dx * o.ds]; }   // a detour: walk sideways round the rock for a moment
-    const ox = o.x, oy = o.y;
-    if (fly || !solidAt(o.x + dx, o.y, rad)) o.x += dx; if (fly || !solidAt(o.x, o.y + dy, rad)) o.y += dy; o.x = clamp(o.x, rad, RW - rad); o.y = clamp(o.y, rad, RH - rad);
-    if (!fly && (dx || dy)) { if (Math.hypot(o.x - ox, o.y - oy) < Math.hypot(dx, dy) * .3) { if ((o.blk = (o.blk || 0) + 1) > 8) { o.blk = 0; o.det = 36; o.ds = Math.random() < .5 ? 1 : -1; } } else o.blk = 0; }
+    if (!fly && o !== G.p && o.det > 0) { o.det--; [dx, dy] = [-dy * o.ds, dx * o.ds]; }   // a detour: enemies only walk sideways round a rock for a moment
+    const ox = o.x, oy = o.y, steps = Math.max(1, Math.ceil(Math.hypot(dx, dy) / 6)), sx = dx / steps, sy = dy / steps;
+    for (let i = 0; i < steps; i++) {   // small steps, one axis at a time: slides along walls, never tunnels
+      if (fly || !solidAt(o.x + sx, o.y, rad)) o.x += sx; else { const k = [-5, 5].find(k => !solidAt(o.x + sx, o.y + k, rad)); if (k) o.y += Math.sign(k) * Math.min(Math.abs(sx), 2); }   // corner assist: a few px of slide when only a rock corner blocks
+      if (fly || !solidAt(o.x, o.y + sy, rad)) o.y += sy; else { const k = [-5, 5].find(k => !solidAt(o.x + k, o.y + sy, rad)); if (k) o.x += Math.sign(k) * Math.min(Math.abs(sy), 2); }
+    }
+    o.x = clamp(o.x, rad, RW - rad); o.y = clamp(o.y, rad, RH - rad);
+    if (!fly && o !== G.p && (dx || dy)) { if (Math.hypot(o.x - ox, o.y - oy) < Math.hypot(dx, dy) * .3) { if ((o.blk = (o.blk || 0) + 1) > 8) { o.blk = 0; o.det = 36; o.ds = Math.random() < .5 ? 1 : -1; } } else o.blk = 0; }
   };
   const updateEnemy = (e, dt) => {
     const p = G.p;

@@ -1,0 +1,19 @@
+{
+  "id": "neobase.catacombes",
+  "name": "Catacombes",
+  "version": "1.0.0",
+  "author": "NDesumeur",
+  "description": "Un jeu d'exploration façon Isaac : salles générées, ennemis et boss tirés du bestiaire, objets aux effets cumulables, synergies, déblocages, sauvegarde et statistiques.",
+  "icon": "icon.png",
+  "entry": "index.js",
+  "view": "catacombes",
+  "neobase": ">=4.1.0",
+  "type": "app",
+  "category": "Jeux",
+  "mobile": false,
+  "system": false,
+  "dependencies": {},
+  "permissions": [
+    "full"
+  ]
+}

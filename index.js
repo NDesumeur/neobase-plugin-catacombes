@@ -847,7 +847,44 @@ const HAND = [
   { id: 'sablier', n: 'Sablier', d: 'ACTIF · Gèle tous les ennemis 4 s (3 salles)', t: 2, act: { max: 3, kind: 'freezeall' } },
 ];
 HAND_ICO.ruche = ['orb', 48, 'ghost']; HAND_ICO.tonneau = ['bell', 28, 'burst']; HAND_ICO.phare = ['lantern', 200, 'range']; HAND_ICO.pacte = ['heart', 355, 'sword']; HAND_ICO.sablier = ['potion', 190, 'clock'];
+HAND.push(
+  // communs
+  { id: 'pomme', n: 'Pomme ridée', d: 'Soigne 1 cœur', t: 1, ap: p => { p.hp = Math.min(p.maxhp, p.hp + 2); } },
+  { id: 'ressort', n: 'Ressort', d: 'Vitesse +15, tirs plus vifs', t: 1, ap: p => { p.speed += 15; p.shotSpd += 40; } },
+  { id: 'cloche', n: 'Cloche fêlée', d: 'Chance +2', t: 1, ap: p => p.luck += 2 },
+  { id: 'osselet', n: 'Osselet', d: 'Dégâts +0,4', t: 1, ap: p => p.dmg += .4 },
+  { id: 'corde', n: 'Corde tendue', d: 'Portée +70, dégâts +0,2', t: 1, ap: p => { p.range += 70; p.dmg += .2; } },
+  { id: 'plume', n: 'Plume', d: 'Vitesse +20, tire un peu plus vite', t: 1, ap: p => { p.speed += 20; p.delay *= .93; } },
+  { id: 'bourse', n: 'Bourse de cuir', d: '+15 pièces', t: 1, ap: p => p.coins += 15 },
+  { id: 'braise', n: 'Braise', d: 'Les tirs peuvent enflammer', t: 1, fx: 'burn' },
+  { id: 'sel', n: 'Sel noir', d: 'Les tirs peuvent empoisonner', t: 1, fx: 'poison' },
+  { id: 'verglas', n: 'Éclat de verglas', d: 'Les tirs peuvent geler', t: 1, fx: 'freeze' },
+  // rares
+  { id: 'targe', n: 'Targe', d: '+1 cœur, invulnérable un peu plus longtemps', t: 2, ap: p => { p.maxhp += 2; p.hp += 2; p.iframes += .15; } },
+  { id: 'pelle', n: 'Pelle de fossoyeur', d: 'Dégâts +0,8, un peu plus lent', t: 2, ap: p => { p.dmg += .8; p.speed -= 8; } },
+  { id: 'cape', n: 'Cape de brume', d: 'Esquive des coups (+6 %)', t: 2, ap: p => p.dodge = Math.min(.4, (p.dodge || 0) + .06) },
+  { id: 'sangsue', n: 'Sangsue', d: 'Voler de la vie en frappant', t: 2, fx: 'lifesteal' },
+  { id: 'etincelle', n: 'Éclat de foudre', d: 'Les tirs font des éclairs en chaîne', t: 2, fx: 'chain' },
+  { id: 'arc', n: 'Arc court', d: 'Tire bien plus vite, dégâts −0,2', t: 2, ap: p => { p.delay *= .72; p.dmg = Math.max(.6, p.dmg - .2); } },
+  { id: 'bocal', n: 'Bocal de lucioles', d: 'Un satellite de plus', t: 2, ap: p => p.orbit = Math.min(3, p.orbit + 1) },
+  { id: 'lunette', n: 'Lunette', d: 'Les tirs sont guidés', t: 2, fx: 'homing', sure: 1 },
+  { id: 'masse', n: 'Masse d\'armes', d: 'Dégâts +1,2, tire plus lentement', t: 2, ap: p => { p.dmg += 1.2; p.delay *= 1.15; } },
+  { id: 'collier', n: 'Collier d\'épines', d: 'Les ennemis qui te touchent se blessent, +1 cœur', t: 2, ap: p => { p.flags.add('thorns'); p.maxhp += 2; p.hp += 2; } },
+  { id: 'mortier', n: 'Mortier', d: 'Les tirs peuvent exploser', t: 2, fx: 'explode' },
+  { id: 'bague_r', n: 'Bague rebondissante', d: 'Les tirs rebondissent sur les murs', t: 2, fx: 'bounce', sure: 1 },
+  // légendaires
+  { id: 'couronne', n: 'Couronne maudite', d: 'Dégâts +1,5 et tire plus vite, mais −1 cœur', t: 3, ap: p => { p.dmg += 1.5; p.delay *= .85; p.maxhp = Math.max(2, p.maxhp - 2); p.hp = Math.min(p.hp, p.maxhp); } },
+  { id: 'orbe_or', n: 'Orbe d\'or', d: 'Chance +4, bien plus de butin', t: 3, ap: p => { p.luck += 4; p.loot += .25; } },
+  { id: 'calice', n: 'Calice', d: '+2 cœurs et soigne tout', t: 3, ap: p => { p.maxhp += 4; p.hp = p.maxhp; } },
+  { id: 'faux', n: 'Faux du faucheur', d: 'Dégâts +2, les tirs traversent les ennemis', t: 3, fx: 'pierce', sure: 1, ap: p => p.dmg += 2 },
+);
+Object.assign(HAND_ICO, { pomme: ['mushroom', 5, 'plus'], ressort: ['boot', 100, 'bounce'], cloche: ['bell', 50, 'clover'], osselet: ['tooth', 40, 'sword'], corde: ['lantern', 30, 'range'], plume: ['boot', 190, 'wing'], bourse: ['ring', 45, 'coin'], braise: ['gem', 20, 'flame'], sel: ['potion', 150, 'drop'], verglas: ['gem', 195, 'snow'],
+  targe: ['shield', 30, 'plus'], pelle: ['dagger', 40, 'sword'], cape: ['mask', 220, 'ghost'], sangsue: ['tooth', 345, 'fang'], etincelle: ['orb', 60, 'bolt'], arc: ['dagger', 120, 'arrow'], bocal: ['lantern', 80, 'ghost'], lunette: ['eye', 250, 'target'], masse: ['orb', 10, 'sword'], collier: ['crown', 160, 'sword'], mortier: ['orb', 25, 'burst'], bague_r: ['ring', 140, 'bounce'],
+  couronne: ['crown', 350, 'flame'], orbe_or: ['orb', 48, 'coin'], calice: ['potion', 350, 'plus'], faux: ['dagger', 280, 'arrow'] });
 const ITEMS = buildItems(HAND);
+// réserves : 'shop' (seulement en boutique), 'vault' (coffres, élites, boss), 'any' (partout) ; raretés : poids par palier, qui monte avec l'étage
+const hashS = k => { let h = 2166136261; for (const ch of k) h = Math.imul(h ^ ch.charCodeAt(0), 16777619); return (h >>> 0) / 4294967296; };
+for (const it of ITEMS) it.pool = it.gen ? (hashS(it.id) < .26 ? 'shop' : hashS(it.id + 'v') < .5 ? 'vault' : 'any') : (it.t === 3 || it.act ? 'vault' : hashS(it.id) < .3 ? 'shop' : 'any');
 const ITEM_BY = Object.fromEntries(ITEMS.map(i => [i.id, i]));
 const TIERC = ['', '#9fe8ff', '#c070ff', '#ffd07a'];
 const SYN = [
@@ -864,7 +901,7 @@ const SYN = [
 ];
 /* ---------- enemies: a movement (from the body plan, sometimes swapped by the creature's seed), an attack per type, a trait ---------- */
 const MOVE_MAIN = { blob: 'hop', biped: 'chase', golem: 'charge', bird: 'flyer', serpent: 'weave', insect: 'swarm', spirit: 'ghost', plant: 'turret', floater: 'orbit', beast: 'sprint', dragon: 'dash', fish: 'hop' };
-const MOVE_ALT = { blob: ['burrow', 'skitter'], biped: ['skitter', 'teleport', 'guard'], golem: ['patrol', 'guard'], bird: ['swoop', 'orbit'], serpent: ['burrow', 'skitter'], insect: ['skitter', 'swoop'], spirit: ['teleport', 'orbit'], plant: ['guard', 'turret'], floater: ['tri', 'teleport'], beast: ['charge', 'patrol', 'skitter'], dragon: ['swoop', 'sprint'], fish: ['skitter', 'burrow'] };
+const MOVE_ALT = { blob: ['burrow', 'skitter'], biped: ['skitter', 'guard', 'patrol'], golem: ['patrol', 'guard'], bird: ['swoop', 'orbit'], serpent: ['burrow', 'skitter'], insect: ['skitter', 'swoop'], spirit: ['teleport', 'orbit'], plant: ['guard', 'turret'], floater: ['tri', 'teleport'], beast: ['charge', 'patrol', 'skitter'], dragon: ['swoop', 'sprint'], fish: ['skitter', 'burrow'] };
 const FLYERS = new Set(['ghost', 'flyer', 'tri', 'swarm', 'swoop', 'orbit']);
 const TRAITS = { armor: ['Blindé', '#9aa4b8'], swift: ['Véloce', '#5cd8ff'], regen: ['Régénère', '#5be37d'], splitter: ['Se divise', '#ff9ac8'], bomber: ['Explose', '#ff9a3c'], berserk: ['Enragé', '#ff4f6d'], summoner: ['Invocateur', '#c070ff'] };
 const TRAIT_KEYS = Object.keys(TRAITS);
@@ -874,20 +911,24 @@ const behaviour = c => {
   const atk = [c.t]; if (c.t2) atk.push(c.t2); else if (hash2(c.seed, 3) < .3) atk.push(TYPE_KEYS_ALL[Math.floor(hash2(c.seed, 4) * TYPE_KEYS_ALL.length)]);
   const shoots = ['plant', 'floater', 'spirit', 'bird'].includes(c.plan) || hash2(c.seed, 5) < .7;
   const trk = hash2(c.seed, 6), trait = trk < .42 ? null : TRAIT_KEYS[Math.floor(hash2(c.seed, 7) * TRAIT_KEYS.length)];
-  return { move: move === 'turret' && !shoots ? 'guard' : move, atk, shoots, trait };
+  if (shoots || hash2(c.seed, 8) < .5) { atk.push(STYLES[Math.floor(hash2(c.seed, 8) * STYLES.length)]); if (hash2(c.seed, 9) < .4) atk.push(STYLES[Math.floor(hash2(c.seed, 10) * STYLES.length)]); }
+  return { move: move === 'turret' && !shoots ? 'guard' : move, atk: [...new Set(atk)], shoots, trait };
 };
 const TYPE_KEYS_ALL = Object.keys(CR.TYPES);
+const STYLES = ['fan', 'cross', 'snipe', 'wave', 'mines', 'ring2', 'pulse'];   // un style propre à chaque ennemi, en plus de son élément
+const BOSS_SIG = ['sweep', 'cage', 'meteors', 'leap', 'orbitals', 'wall', 'chain', 'tentacles', 'fanrev', 'shockwave', 'crush'];   // attaques de boss : chaque boss en reçoit trois, selon sa graine
+const STYLE_NAME = { fan: 'Éventail', cross: 'Croix', snipe: 'Tir de précision', wave: 'Onde', mines: 'Mines', ring2: 'Double anneau', pulse: 'Pulsation',
+  sweep: 'Balayage', cage: 'Cage', meteors: 'Météores', leap: 'Bond écrasant', orbitals: 'Orbes', wall: 'Mur de projectiles', chain: 'Enchaînement', tentacles: 'Tentacules', fanrev: 'Double éventail', shockwave: 'Onde de choc', crush: 'Écrasement' };
 const makeEnemy = (c, floor, x, y, kind) => {
   const boss = kind === 'boss', mini = kind === 'mini', b = behaviour(c);
   const hp = Math.round((boss ? 55 + floor * 32 : mini ? 26 + floor * 11 : 5 + floor * 2.4) + c.pv / (boss ? 3.5 : mini ? 6 : 14));
   const tr = boss ? null : b.trait;
   return { c, x, y, vx: 0, vy: 0, hp: tr === 'armor' ? Math.round(hp * 1.15) : hp, max: tr === 'armor' ? Math.round(hp * 1.15) : hp, r: boss ? 30 : mini ? 17 : 11, boss, mini, ai: b.move, atk: b.atk, shoots: b.shoots || boss || mini, tr, spd: (boss ? 52 : mini ? 44 : 38) + c.vit * (boss ? .35 : .5), dmg: boss && floor > 2 ? 2 : 1, t: Math.random() * 3, cd: rnd(.8, 2), ai_i: 0, burn: 0, freeze: 0, poison: 0, flash: 0, scale: boss ? 3 : mini ? 1.7 : 1, ph: 0, state: '', st: 0, hx: x, hy: y, sum: rnd(3, 6), pats: boss ? bossPatterns(c) : null, fly: FLYERS.has(b.move), shotCol: CRUI.typeCol(c.t), spawn: .6, rage: 1 };
 };
-const bossPatterns = c => {
-  const R = CR.rng(c.seed), gen = ['radial', 'aimed', 'charge', 'summon', 'spiral', 'rain'], out = [c.t];
-  out.push(c.t2 || pickR(R, TYPE_KEYS_ALL.filter(t => t !== c.t)));
-  while (out.length < 5) { const p = pickR(R, out.length < 4 ? gen : [...gen, ...TYPE_KEYS_ALL]); if (!out.includes(p)) out.push(p); }
-  return out;
+const bossPatterns = c => {   // éléments du boss + trois attaques de signature tirées de sa graine (deux boss n'ont presque jamais le même jeu) + une attaque de base
+  const R = CR.rng(c.seed), t2 = c.t2 || pickR(R, TYPE_KEYS_ALL.filter(t => t !== c.t)), sig = [], bag = [...BOSS_SIG];
+  while (sig.length < 3) sig.push(bag.splice(Math.floor(R() * bag.length), 1)[0]);
+  return [sig[0], c.t, sig[1], t2, sig[2], pickR(R, ['radial', 'aimed', 'spiral', 'rain', 'summon'])];
 };
 /* ---------- rooms and floors ---------- */
 const DIRS = [[0, -1], [1, 0], [0, 1], [-1, 0]];
@@ -908,7 +949,7 @@ function makeFloor(seed, floor) {
   rooms.forEach((r, i) => r.dist = dd[i]);
   const ends = rooms.map((r, i) => i).filter(i => i && rooms[i].doors.filter(Boolean).length === 1).sort((a, b) => dd[b] - dd[a]);
   const take = t => { const i = ends.shift() ?? rooms.map((r, k) => k).filter(k => k && rooms[k].type === 'combat').sort((a, b) => dd[b] - dd[a])[0]; if (i != null) rooms[i].type = t; };
-  take('boss'); take('treasure'); if (floor >= 2 && R() < .85) take('shop');
+  take('boss'); if (floor === 1 || R() < .72) take('treasure'); if (floor >= 2 && R() < .85) take('shop');
   if (floor >= 2) { const cand = rooms.map((r, i) => i).filter(i => rooms[i].type === 'combat' && dd[i] >= 2); if (cand.length && R() < .75) rooms[cand[Math.floor(R() * cand.length)]].type = 'mini'; }
   rooms.forEach((r, i) => { if (r.type === 'combat' && i && R() < .22 + floor * .02) r.type = 'wave'; });
   rooms.forEach((r, i) => { r.seed = Math.floor(R() * 1e9); r.visited = i === 0; r.cleared = ['start', 'treasure', 'shop'].includes(r.type); r.loot = null; });
@@ -1191,7 +1232,12 @@ export default async function (ctx) {
     const place = (arr, depth, gap) => arr.forEach((l, i) => { const o = (i - (arr.length - 1) / 2) * gap, [x, y] = snapFree(ctr[0] + far[0] * (ext - 40) * depth + lat[0] * o, ctr[1] + far[1] * (ext - 40) * depth + lat[1] * o); const e = makeEnemy(l.c, G.floor, x, y, mini && l === list[0] ? 'mini' : ''); e.spawn = .6 + Math.random() * .3; G.e.push(e); });
     place(slots.range, .95, horiz ? 110 : 150); place(slots.guard, .55, horiz ? 130 : 170); place(slots.melee, .2, horiz ? 90 : 120);
   };
-  const pickItem = R => { let pool = ITEMS.filter(i => unlocked(i) && !G.items.includes(i.id)); if (!pool.length) pool = ITEMS.filter(unlocked); return pool[Math.floor(R() * pool.length)]; };
+  const pickItem = (R, src = 'vault', not = []) => {   // tirage pondéré : commun ≫ rare ≫ légendaire, les objets faits main pèsent plus que les générés
+    const lv = Math.min(G.floor, 6), W = it => [0, 60, 12 + lv * 3, 2 + lv * 1.5][it.t] * (it.gen ? 1 : 6) * (it.t === 3 ? 1 + G.p.luck * .04 : 1);
+    let pool = ITEMS.filter(i => unlocked(i) && !G.items.includes(i.id) && !not.includes(i.id) && (i.pool === 'any' || i.pool === src));
+    if (!pool.length) pool = ITEMS.filter(i => unlocked(i) && !not.includes(i.id));
+    let x = R() * pool.reduce((a, i) => a + W(i), 0); for (const i of pool) { x -= W(i); if (x <= 0) return i; } return pool[pool.length - 1];
+  };
   const loadRoom = (idx, from) => {
     const r = G.rooms[idx]; G.cur = idx; G.rl = makeLayout(r, G.floor); r.visited = true; G.e = []; G.b = []; G.eb = []; G.pk = G.pk.filter(k => k.keep); G.fire = []; G.fl = []; G.hz = []; G.tm = []; G.wave = 1;
     G.door = 0; G.entry = from; G.bg = renderBg(r, G.rl, G.floor);
@@ -1201,15 +1247,15 @@ export default async function (ctx) {
     if (!r.cleared && ['combat', 'wave', 'mini', 'boss'].includes(r.type)) {
       if (r.type === 'boss') {
         const want = G.floor >= G.len ? 5 : [2, 3, 3, 4, 4, 4, 4][G.floor - 1], pool = CREATURES.filter(c => CR.RK[c.r] === want), c = pool[Math.floor(R() * pool.length)];
-        const e = makeEnemy(c, G.floor, RW / 2, RH / 2 - 20, 'boss'); e.spawn = 1.4; G.e.push(e); announce('Boss : ' + c.n + ' — ' + e.pats.slice(0, 2).map(t => ATK_NAME[t] || t).join(', '));
+        const e = makeEnemy(c, G.floor, RW / 2, RH / 2 - 20, 'boss'); e.spawn = 1.4; G.e.push(e); announce('Boss : ' + c.n + ' — ' + e.pats.filter(t => BOSS_SIG.includes(t)).map(t => ATK_NAME[t] || t).join(', '));
       } else if (r.type === 'mini') { spawnGroup(R, 1, true); spawnGroup(R, 2 + (G.floor > 3 ? 1 : 0), false); announce('Salle d\'élite : ' + G.e[0].c.n); }
       else spawnGroup(R, ri2(R, 2 + (G.floor > 2 ? 1 : 0), 3 + Math.ceil(Math.min(G.floor, 6) * .7)) - (r.type === 'wave' ? 1 : 0));
     }
     if (r.type === 'treasure' && !r.loot) { r.loot = 'done'; r.item = pickItem(R).id; }
     if (r.type === 'treasure' && r.item && !r.taken) G.pk.push({ kind: 'item', id: r.item, x: RW / 2, y: RH / 2, keep: false, bob: 0 });
     if (r.type === 'shop') {
-      const items = []; for (let i = 0; i < 3; i++) items.push(pickItem(R));
-      (r.sold ||= {}); items.forEach((it, i) => { if (!r.sold[i]) G.pk.push({ kind: 'item', id: it.id, x: RW / 2 + (i - 1) * 90, y: RH / 2 - 20, price: 8 + it.t * 6, slot: i, keep: false, bob: i }); });
+      const items = []; for (let i = 0; i < 3; i++) items.push(pickItem(R, 'shop', items.map(k => k.id)));
+      (r.sold ||= {}); items.forEach((it, i) => { if (!r.sold[i]) G.pk.push({ kind: 'item', id: it.id, x: RW / 2 + (i - 1) * 90, y: RH / 2 - 20, price: 10 + it.t * 7, slot: i, keep: false, bob: i }); });
       if (!r.sold.h) G.pk.push({ kind: 'heart', price: 6, slot: 'h', x: RW / 2 - 180, y: RH / 2 + 50, keep: false });
     }
     if (r.type === 'boss' && r.cleared && G.floor < G.len && !r.nextTaken) G.pk.push({ kind: 'stairs', x: RW / 2, y: RH / 2, keep: false });
@@ -1310,11 +1356,31 @@ export default async function (ctx) {
     glace: (e, a, P) => { const n = 9 + Math.round(P * 2), o = rnd(0, 6); for (let k = 0; k < n; k++) enemyShoot(e, k / n * 6.283 + o, 85, 1, 0, 5, { slow: 1, col: '#9fe8ff' }); },
     roche: (e, a, P) => { G.hz.push({ k: 'warn', x: G.p.x, y: G.p.y, r: 28, t: 0, dur: 1, then: 'boulder' }); if (P > 1.4) G.hz.push({ k: 'warn', x: clamp(G.p.x + rnd(-80, 80), 30, RW - 30), y: clamp(G.p.y + rnd(-60, 60), 30, RH - 30), r: 26, t: -.3, dur: 1, then: 'boulder' }); SFX.warn(); },
     vent: (e, a, P) => { const n = 14 + Math.round(P * 4), o = rnd(0, 6); for (let k = 0; k < n; k++) later(k * .06, () => { if (!e.dead) enemyShoot(e, k * .55 + o, 120, 2, 3.1416, 4, { col: '#9cf0c8' }); }); },
-    ombre: (e, a, P) => { G.fl.push({ x: e.x, y: e.y, t: .3, kind: 'puff' }); const ang = rnd(0, 6.28), r0 = rnd(110, 160); for (let k = 0; k < 12; k++) { const x = clamp(G.p.x + Math.cos(ang + k) * r0, 30, RW - 30), y = clamp(G.p.y + Math.sin(ang + k) * r0, 30, RH - 30); if (!solidAt(x, y, 12)) { e.x = x; e.y = y; break; } } G.fl.push({ x: e.x, y: e.y, t: .3, kind: 'puff' }); later(.3, () => { if (!e.dead) enemyShoot(e, aimAng(e), 150, 3 + (P > 1.4 ? 2 : 0), .22, 4, { col: '#b08aff' }); }); },
+    ombre: (e, a, P) => { G.fl.push({ x: e.x, y: e.y, t: .3, kind: 'puff' }); later(.25, () => { if (e.dead) return; enemyShoot(e, aimAng(e), 150, 3 + (P > 1.4 ? 2 : 0), .22, 4, { col: '#b08aff' }); enemyShoot(e, aimAng(e) + 3.1416, 105, 2, .6, 4, { col: '#b08aff' }); }); },
     lumiere: (e, a, P) => { G.hz.push({ k: 'line', x: e.x, y: e.y, ang: a, t: 0, dur: .65, fn: () => { for (let k = 0; k < 5 + Math.round(P); k++) later(k * .06, () => { if (!e.dead) enemyShoot(e, a, 300, 1, 0, 4, { col: '#fff3b0' }); }); } }); SFX.warn(); },
     poison: (e, a, P) => { for (let k = 0; k < 2 + (P > 1.4 ? 1 : 0); k++) G.hz.push({ k: 'warn', x: clamp(G.p.x + rnd(-70, 70), 30, RW - 30), y: clamp(G.p.y + rnd(-50, 50), 30, RH - 30), r: 22, t: -k * .2, dur: .7, then: 'pool', col: '#a050e0' }); enemyShoot(e, a, 90, 1, 0, 5, { col: '#c070ff', drop: 'poison' }); },
     acier: (e, a, P) => enemyShoot(e, a, 190, 2 + (P > 1.4 ? 1 : 0), .35, 4, { bounce: 3, col: '#cfd8e8' }),
     esprit: (e, a, P) => enemyShoot(e, a, 70, 2 + (P > 1.4 ? 1 : 0), .9, 5, { home: 1.4, life: 4.6, col: '#ff9ac8' }),
+    // styles d'attaque propres à chaque ennemi
+    fan: (e, a, P) => enemyShoot(e, a, 115, 5 + (P > 1.4 ? 2 : 0), .28, 4),
+    cross: (e, a, P) => { for (let w = 0; w < 2; w++) later(w * .35, () => { if (!e.dead) for (let k = 0; k < 4; k++) enemyShoot(e, e.t + w * .785 + k * 1.5708, 120, 1, 0, 4); }); },
+    snipe: (e, a, P) => { G.hz.push({ k: 'line', x: e.x, y: e.y, ang: a, t: 0, dur: .55, fn: () => { if (!e.dead) enemyShoot(e, a, 330, 1, 0, 4, { col: '#ffffff' }); } }); SFX.warn(); },
+    wave: (e, a, P) => { for (let k = 0; k < 6; k++) later(k * .12, () => { if (!e.dead) enemyShoot(e, aimAng(e) + Math.sin(k * 1.3) * .5, 140, 2, .5, 4); }); },
+    mines: (e, a, P) => { for (let k = 1; k <= 3; k++) G.hz.push({ k: 'warn', x: clamp(e.x + (G.p.x - e.x) * k / 3.5 + rnd(-30, 30), 30, RW - 30), y: clamp(e.y + (G.p.y - e.y) * k / 3.5 + rnd(-30, 30), 30, RH - 30), r: 22, t: -k * .15, dur: .9, then: k === 3 ? 'boulder' : null }); SFX.warn(); },
+    ring2: (e, a, P) => { for (let w = 0; w < 2; w++) later(w * .4, () => { if (!e.dead) for (let k = 0; k < 9; k++) enemyShoot(e, k / 9 * 6.283 + w * .35, 95 + w * 35, 1, 0, 4); }); },
+    pulse: (e, a, P) => { for (let w = 0; w < 4; w++) later(w * .25, () => { if (!e.dead) for (let k = 0; k < 6; k++) enemyShoot(e, k / 6 * 6.283 + w * .5, 105, 1, 0, 4); }); },
+    // attaques de signature des boss
+    sweep: (e, a, P) => { for (let k = 0; k < 22; k++) later(k * .07, () => { if (!e.dead) enemyShoot(e, a - 1.3 + k * .124, 140, 1, 0, 4); }); },
+    cage: (e, a, P) => { const gap = Math.floor(rnd(0, 18)), px = G.p.x, py = G.p.y; for (let k = 0; k < 18; k++) { if (k === gap || k === (gap + 1) % 18) continue; const an = k / 18 * 6.283; G.eb.push({ x: clamp(px + Math.cos(an) * 150, 10, RW - 10), y: clamp(py + Math.sin(an) * 150, 10, RH - 10), vx: -Math.cos(an) * 70, vy: -Math.sin(an) * 70, r: 4, dmg: 1, life: 2.8, col: e.shotCol, home: 0, bounce: 0, slow: 0, drop: null }); } SFX.warn(); },
+    meteors: (e, a, P) => { for (let k = 0; k < Math.round(5 * P); k++) G.hz.push({ k: 'warn', x: clamp(G.p.x + (k ? rnd(-130, 130) : 0), 30, RW - 30), y: clamp(G.p.y + (k ? rnd(-90, 90) : 0), 30, RH - 30), r: 28, t: -k * .22, dur: .9 }); SFX.warn(); },
+    leap: (e, a, P) => { const tx = clamp(G.p.x, 50, RW - 50), ty = clamp(G.p.y, 50, RH - 50); G.hz.push({ k: 'warn', x: tx, y: ty, r: 50, t: 0, dur: .9 }); SFX.warn(); later(.9, () => { if (e.dead) return; G.fl.push({ x: e.x, y: e.y, t: .3, kind: 'puff' }); e.x = tx; e.y = ty; for (let k = 0; k < 12; k++) enemyShoot(e, k / 12 * 6.283, 120, 1, 0, 5); }); },
+    orbitals: (e, a, P) => { for (let k = 0; k < 8; k++) later(k * .1, () => { if (!e.dead) enemyShoot(e, k * .785 + e.t, 80, 1, 0, 6, { bounce: 2, life: 5 }); }); },
+    wall: (e, a, P) => { const gap = Math.floor(rnd(1, 11)); for (let k = 0; k < 13; k++) { if (Math.abs(k - gap) < 2) continue; G.eb.push({ x: (k + .5) * RW / 13, y: 10, vx: 0, vy: 85, r: 5, dmg: 1, life: 4.5, col: e.shotCol, home: 0, bounce: 0, slow: 0, drop: null }); } SFX.warn(); },
+    chain: (e, a, P) => { for (let k = 0; k < 3; k++) later(k * .35, () => { if (!e.dead) enemyShoot(e, aimAng(e), 120 + k * 40, 3, .2, 5); }); later(1.1, () => { if (!e.dead) for (let k = 0; k < 8; k++) enemyShoot(e, k * .785, 110, 1, 0, 5); }); },
+    tentacles: (e, a, P) => { for (let k = 1; k <= 6; k++) G.hz.push({ k: 'warn', x: clamp(e.x + (G.p.x - e.x) * k / 5, 30, RW - 30), y: clamp(e.y + (G.p.y - e.y) * k / 5, 30, RH - 30), r: 24, t: -k * .12, dur: .6 }); SFX.warn(); },
+    fanrev: (e, a, P) => { enemyShoot(e, a, 100, 7, .3, 4); later(.5, () => { if (!e.dead) enemyShoot(e, aimAng(e), 150, 7, .3, 4); }); },
+    shockwave: (e, a, P) => { G.hz.push({ k: 'warn', x: e.x, y: e.y, r: 62, t: 0, dur: .5 }); SFX.warn(); later(.5, () => { if (!e.dead) for (let k = 0; k < 24; k++) enemyShoot(e, k / 24 * 6.283, 150, 1, 0, 4); }); },
+    crush: (e, a, P) => { e.state = 'rush'; e.st = .8; e.dx = Math.cos(a); e.dy = Math.sin(a); e.cd = 0; later(.85, () => { if (!e.dead) for (let k = 0; k < 12; k++) enemyShoot(e, k / 12 * 6.283, 125, 1, 0, 5); }); },
     // generic boss patterns
     radial: (e, a, P) => { const n = Math.round(14 * P); for (let k = 0; k < n; k++) enemyShoot(e, k / n * 6.283 + e.t, 105, 1, 0, 5); },
     aimed: (e, a, P) => { for (let k = 0; k < Math.round(3 * P); k++) later(k * .22, () => { if (!e.dead) enemyShoot(e, aimAng(e), 170, 3, .22, 5); }); },
@@ -1345,7 +1411,7 @@ export default async function (ctx) {
   const updateEnemy = (e, dt) => {
     const p = G.p;
     if (e.spawn > 0) { e.spawn -= dt; return; }
-    e.t += dt; if (e.flash > 0) e.flash -= dt;
+    const x0 = e.x; e.t += dt; if (e.flash > 0) e.flash -= dt;
     if (e.burn > 0) { e.burn -= dt; e.hp -= dt * 1.6 * (hasSyn('toxique') ? 1.5 : 1); if (e.hp <= 0 && !e.dead) { killEnemy(e); return; } }
     if (e.poison > 0) { e.poison -= dt; e.hp -= dt * 1.3 * (hasSyn('toxique') ? 1.5 : 1); if (e.hp <= 0 && !e.dead) { killEnemy(e); return; } }
     if (e.tr === 'regen' && e.hp < e.max) e.hp = Math.min(e.max, e.hp + dt * e.max * .02);
@@ -1372,7 +1438,10 @@ export default async function (ctx) {
         case 'guard': { const hd = Math.hypot(e.hx - e.x, e.hy - e.y); if (d < 150) { vx = ux * sp * .9; vy = uy * sp * .9; } else if (hd > 12) { vx = (e.hx - e.x) / hd * sp * .6; vy = (e.hy - e.y) / hd * sp * .6; } break; }
         case 'sprint': if (e.state === 'go') { e.st -= dt; vx = e.dx * sp * 3; vy = e.dy * sp * 3; if (e.st <= 0 || solidAt(e.x + e.dx * 14, e.y + e.dy * 14, 8)) { e.state = 'stop'; e.st = rnd(.4, .9); } } else { e.st = (e.st || .5) - dt; vx = ux * sp * .15; vy = uy * sp * .15; if (e.st <= 0) { e.state = 'go'; e.st = .55; e.dx = ux; e.dy = uy; } } break;
         case 'swoop': if (e.state === 'dive') { e.st -= dt; vx = e.dx * sp * 3.4; vy = e.dy * sp * 3.4; if (e.st <= 0) { e.state = ''; e.cd = rnd(1, 1.8); } } else { const a = e.t * 1.2, tx = p.x + Math.cos(a) * 130 - e.x, ty = p.y + Math.sin(a) * 100 - 40 - e.y, n = Math.hypot(tx, ty) || 1; vx = tx / n * sp * 1.2; vy = ty / n * sp * 1.2; if (e.cd <= 0) { e.state = 'dive'; e.st = .55; e.dx = ux; e.dy = uy; } } break;
-        case 'teleport': { vx = ux * sp * .35; vy = uy * sp * .35; if ((e.st -= dt) <= 0) { e.st = rnd(2.2, 3.4); G.fl.push({ x: e.x, y: e.y, t: .3, kind: 'puff' }); const [nx, ny] = freeSpot(Math.random, 100); e.x = nx; e.y = ny; G.fl.push({ x: e.x, y: e.y, t: .3, kind: 'puff' }); } break; }
+        case 'teleport': {  // flotte à distance ; ne disparaît que pour fuir quand on est collé à lui (fumée annoncée avant)
+          const k = d > 170 ? .7 : d < 110 ? -.7 : 0, s2 = Math.sin(e.t * 1.4); vx = (ux * k - uy * s2 * .5) * sp; vy = (uy * k + ux * s2 * .5) * sp;
+          e.st -= dt; if (d < 60 && e.st <= 0) { e.st = 3.5; G.fl.push({ x: e.x, y: e.y, t: .3, kind: 'puff' }); const [nx, ny] = freeSpot(Math.random, 150); e.x = nx; e.y = ny; G.fl.push({ x: e.x, y: e.y, t: .3, kind: 'puff' }); }
+          break; }
         case 'burrow': {
           if (e.state === 'under') { e.hidden = true; e.st -= dt; vx = ux * sp * 2.4; vy = uy * sp * 2.4; if (e.st <= 0) { e.state = 'pop'; e.st = .6; G.hz.push({ k: 'warn', x: e.x, y: e.y, r: 30, t: 0, dur: .5, then: 'burst' }); e.hidden = false; } }
           else if (e.state === 'pop') { e.st -= dt; if (e.st <= 0) { e.state = ''; e.cd = rnd(2, 3.2); } }
@@ -1390,6 +1459,8 @@ export default async function (ctx) {
     }
     // enemies push each other apart a little
     for (const o of G.e) if (o !== e && !o.dead && o.spawn <= 0) { const ox = e.x - o.x, oy = e.y - o.y, dd = Math.hypot(ox, oy) || 1, min = e.r + o.r - 4; if (dd < min) { e.x += ox / dd * (min - dd) * .3; e.y += oy / dd * (min - dd) * .3; } }
+    { const mv = e.x - x0, want = Math.abs(mv) > 5 * dt ? Math.sign(mv) : (p.x < e.x ? -1 : 1);   // le demi-tour ne se fait qu'après 0,2 s dans l'autre sens : pas de clignotement
+      if (!e.face) e.face = want; else if (want !== e.face) { if ((e.fchg = (e.fchg || 0) + dt) > .2) { e.face = want; e.fchg = 0; } } else e.fchg = 0; }
     if (!e.hidden && Math.hypot(p.x - e.x, p.y - e.y) < e.r + p.r - 2) { const before = p.hp; hurt(e.dmg, e); if (p.hp < before) { const a = Math.atan2(e.y - p.y, e.x - p.x); if (!e.boss) { e.rec = .6; moveWithWalls(e, Math.cos(a) * 26, Math.sin(a) * 26, e.r - 2, e.fly); } moveWithWalls(p, -Math.cos(a) * 34, -Math.sin(a) * 34, p.r, false); p.vx = -Math.cos(a) * 200; p.vy = -Math.sin(a) * 200; } }
   };
   const updateBoss = (e, dt, ux, uy, d, dx, dy) => {
@@ -1406,7 +1477,7 @@ export default async function (ctx) {
     const p = G.p; if (p.act && p.act.charge < p.act.max) p.act.charge++;
     if (p.flags.has('regen') && G.roomClears % 2 === 0) heal(1);
     if ((r.type === 'combat' || r.type === 'wave') && (Math.random() < .3 + p.loot + (r.type === 'wave' ? .25 : 0) || p.hp <= 2)) addPickup(p.hp <= 2 || Math.random() < .5 ? 'heart' : 'coin', RW / 2, RH / 2);
-    if (r.type === 'mini') { const R = CR.rng(r.seed ^ 91), it = pickItem(R); G.pk.push({ kind: 'item', id: it.id, x: RW / 2, y: RH / 2, keep: false, bob: 0, boss: true }); addPickup('heart', RW / 2 + 30, RH / 2); announce('Récompense de la salle d\'élite !'); }
+    if (r.type === 'mini') { const R = CR.rng(r.seed ^ 91); if (R() < .5) { const it = pickItem(R); G.pk.push({ kind: 'item', id: it.id, x: RW / 2, y: RH / 2, keep: false, bob: 0, boss: true }); } else { addPickup('coin', RW / 2 - 25, RH / 2); addPickup('coin', RW / 2 + 5, RH / 2 - 15); } addPickup('heart', RW / 2 + 30, RH / 2); announce('Récompense de la salle d\'élite !'); }
     if (r.type === 'boss') {
       doc.stats.bosses++; if (G.floor === 1) doc.ach.boss1 = true;
       if (G.floor >= G.len) { G.over = true; endRun(true); return; }
@@ -1589,11 +1660,11 @@ export default async function (ctx) {
       g.fillStyle = 'rgba(0,0,0,.35)'; g.beginPath(); g.ellipse(ox + e.x, oy + e.y + e.r * .8, e.r * .95, e.r * .4, 0, 0, 6.283); g.fill();
       if (e.spawn > 0) { g.globalAlpha = .4 + (.6 - e.spawn) * .5; }
       if (e.state === 'wind' || (e.state === 'go' && false)) { g.globalAlpha = .6 + Math.sin(G.t * 40) * .3; }
-      drawSprite(e.c, e.x, e.y, e.scale, fr, e.flash > 0, e.dx < 0 || (G.p.x < e.x)); g.globalAlpha = 1;
+      drawSprite(e.c, e.x, e.y, e.scale, fr, e.flash > 0, (e.face || (G.p.x < e.x ? -1 : 1)) < 0); g.globalAlpha = 1;
       if (e.tele) { const f = 1 - Math.max(0, e.tele.t) / TELE, col = e.boss ? '#ff4f6d' : e.shotCol, x = ox + e.x, y = oy + e.y, rr = e.r + 5;
         g.strokeStyle = col; g.lineWidth = 2; g.globalAlpha = .9; g.beginPath(); g.arc(x, y, rr, -1.571, -1.571 + f * 6.283); g.stroke(); g.globalAlpha = .25 + f * .25; g.fillStyle = col; g.beginPath(); g.arc(x, y, rr * f, 0, 6.283); g.fill(); g.globalAlpha = 1;
         if (['feu', 'eau', 'plante', 'ombre', 'acier', 'esprit', 'aimed', 'charge'].includes(e.tele.k)) { g.strokeStyle = col; g.globalAlpha = .55; g.setLineDash([5, 5]); g.lineWidth = 1; g.beginPath(); g.moveTo(x, y); g.lineTo(x + Math.cos(e.tele.ang) * 170, y + Math.sin(e.tele.ang) * 170); g.stroke(); g.setLineDash([]); g.globalAlpha = 1; }
-        const nm = (ATK_NAME[e.tele.k] || { radial: 'Anneau', aimed: 'Salve', spiral: 'Spirale', rain: 'Pluie', summon: 'Renforts', charge: 'Charge' }[e.tele.k] || '').toUpperCase(); g.font = 'bold 9px monospace'; g.textAlign = 'center'; g.fillStyle = '#05010b'; g.fillText(nm, x + 1, y - e.r - 15); g.fillStyle = '#fff'; g.fillText(nm, x, y - e.r - 16); g.textAlign = 'left'; }
+        const nm = (ATK_NAME[e.tele.k] || STYLE_NAME[e.tele.k] || { radial: 'Anneau', aimed: 'Salve', spiral: 'Spirale', rain: 'Pluie', summon: 'Renforts', charge: 'Charge' }[e.tele.k] || '').toUpperCase(); g.font = 'bold 9px monospace'; g.textAlign = 'center'; g.fillStyle = '#05010b'; g.fillText(nm, x + 1, y - e.r - 15); g.fillStyle = '#fff'; g.fillText(nm, x, y - e.r - 16); g.textAlign = 'left'; }
       if (e.tr) { g.fillStyle = TRAITS[e.tr][1]; g.globalAlpha = .55; g.fillRect(ox + e.x - e.r, oy + e.y + e.r - 3, e.r * 2, 2); g.globalAlpha = 1; }
       if (e.freeze > 0) { g.fillStyle = 'rgba(159,232,255,.3)'; g.fillRect(ox + e.x - e.r, oy + e.y - e.r, e.r * 2, e.r * 2); } if (e.burn > 0) { g.fillStyle = '#ff8a5c'; g.fillRect(ox + e.x - 2, oy + e.y - e.r - 6 - (G.t * 20 % 6), 3, 3); } if (e.poison > 0) { g.fillStyle = '#c070ff'; g.fillRect(ox + e.x + 4, oy + e.y - e.r - 4 - (G.t * 15 % 6), 3, 3); }
       if (e.hp < e.max && !e.boss) { g.fillStyle = '#000'; g.fillRect(ox + e.x - 11, oy + e.y - e.r - 8, 22, 4); g.fillStyle = e.tr ? TRAITS[e.tr][1] : '#ff4f6d'; g.fillRect(ox + e.x - 10, oy + e.y - e.r - 7, 20 * Math.max(0, e.hp / e.max), 2); }
